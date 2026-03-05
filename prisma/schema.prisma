@@ -1,0 +1,224 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TenantRole {
+  ADMIN
+  OPERATOR
+  VIEWER
+}
+
+enum JobStatus {
+  QUEUED
+  RUNNING
+  SUCCESS
+  FAILED
+  CANCELED
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum InstallerType {
+  EXE
+  MSI
+  MSIX
+  ZIP
+  SCRIPT
+}
+
+model Tenant {
+  id            String             @id @default(cuid())
+  name          String
+  slug          String             @unique
+  plan          String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  memberships   TenantMembership[]
+  apps          TenantApplication[]
+  jobs          PackageJob[]
+  notifications Notification[]
+  reminders     ReminderRule[]
+  auditLogs     AuditLog[]
+}
+
+model User {
+  id          String             @id @default(cuid())
+  email       String             @unique
+  name        String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  memberships TenantMembership[]
+  auditLogs   AuditLog[]
+}
+
+model TenantMembership {
+  tenantId    String
+  userId      String
+  role        TenantRole         @default(VIEWER)
+  createdAt   DateTime           @default(now())
+
+  tenant      Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([tenantId, userId])
+  @@index([userId])
+}
+
+model Application {
+  id            String              @id @default(cuid())
+  name          String
+  vendor        String?
+  category      String?
+  homepage      String?
+  installerType InstallerType?
+  detectionRule Json?
+  isActive      Boolean             @default(true)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  versions      ApplicationVersion[]
+  tenantApps    TenantApplication[]
+  updateEvents  UpdateEvent[]
+
+  @@unique([name, vendor])
+  @@index([name])
+}
+
+model ApplicationVersion {
+  id            String              @id @default(cuid())
+  applicationId String
+  version       String
+  releasedAt    DateTime?
+  sourceUrl     String?
+  checksum      String?
+  createdAt     DateTime            @default(now())
+
+  application   Application         @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  assets        Asset[]
+  jobs          PackageJob[]
+
+  @@unique([applicationId, version])
+  @@index([applicationId, releasedAt])
+}
+
+model TenantApplication {
+  tenantId      String
+  applicationId String
+  isEnabled     Boolean             @default(true)
+  updateRing    String?
+  autoApprove   Boolean             @default(false)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  tenant        Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  application   Application         @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@id([tenantId, applicationId])
+  @@index([applicationId])
+}
+
+model Asset {
+  id                   String              @id @default(cuid())
+  applicationVersionId String
+  fileUrl              String
+  silentArgs           String?
+  installScript        String?
+  createdAt            DateTime            @default(now())
+
+  applicationVersion   ApplicationVersion  @relation(fields: [applicationVersionId], references: [id], onDelete: Cascade)
+
+  @@index([applicationVersionId])
+}
+
+model UpdateEvent {
+  id            String       @id @default(cuid())
+  applicationId String
+  oldVersion    String?
+  newVersion    String
+  severity      Severity     @default(MEDIUM)
+  detectedAt    DateTime     @default(now())
+  notes         String?
+
+  application   Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId, detectedAt])
+  @@index([severity])
+}
+
+model PackageJob {
+  id                   String              @id @default(cuid())
+  tenantId             String
+  applicationVersionId String
+  status               JobStatus           @default(QUEUED)
+  startedAt            DateTime?
+  finishedAt           DateTime?
+  logUrl               String?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  tenant               Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  applicationVersion   ApplicationVersion  @relation(fields: [applicationVersionId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId, status, createdAt])
+  @@index([applicationVersionId])
+}
+
+model ReminderRule {
+  id          String    @id @default(cuid())
+  tenantId    String
+  name        String
+  isEnabled   Boolean   @default(true)
+  minSeverity Severity  @default(HIGH)
+  channel     String
+  target      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, isEnabled])
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  tenantId    String
+  type        String
+  title       String
+  body        String
+  channel     String
+  sentAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+}
+
+model AuditLog {
+  id          String    @id @default(cuid())
+  tenantId    String
+  userId      String?
+  action      String
+  entity      String
+  entityId    String?
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, createdAt])
+  @@index([userId, createdAt])
+}

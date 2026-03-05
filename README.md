@@ -1,6 +1,23 @@
 # Software2.0-now
 This application aims to allow users to see new updates for services and software they would need to build packages for. It would allow users to create dashboards, reminders, etc.
 
+## Quick start (Prisma foundation)
+
+```bash
+npm install
+cp .env.example .env
+# set DATABASE_URL in .env
+npm run prisma:generate
+npx prisma migrate dev --name init_mvp
+npm run prisma:seed
+```
+
+This repository now includes:
+- `prisma/schema.prisma` — multi-tenant MVP data model
+- `prisma/seed.ts` — starter app catalog seed data (10 common apps)
+- `package.json` scripts for Prisma generate/migrate/seed
+
+
 0) Target MVP (what “done” means)
   A tenant admin can:
   Sign in with SSO
