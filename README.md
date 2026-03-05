@@ -15,7 +15,13 @@ npm run prisma:seed
 This repository now includes:
 - `prisma/schema.prisma` — multi-tenant MVP data model
 - `prisma/seed.ts` — starter app catalog seed data (10 common apps)
-- `package.json` scripts for Prisma generate/migrate/seed
+- `package.json` scripts for Next.js + Prisma
+- `src/app/api/...` tenant-aware API scaffolding for:
+  - `GET /api/apps`
+  - `GET /api/tenant/apps`
+  - `POST /api/tenant/apps/:id/enable`
+  - `POST /api/tenant/apps/:id/disable`
+  - `GET /api/dashboard/summary`
 
 
 0) Target MVP (what “done” means)
