@@ -7,7 +7,7 @@ export async function POST(
   _request: Request,
   { params }: { params: { id: string } }
 ) {
-  const { tenantId, role } = getRequestContext();
+  const { tenantId, role } = await getRequestContext();
   const forbidden = requireRole(role, ["ADMIN", "OPERATOR"]);
   if (forbidden) return forbidden;
 

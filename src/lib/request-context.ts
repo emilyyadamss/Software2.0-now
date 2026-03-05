@@ -13,8 +13,8 @@ export type RequestContext = {
  * - x-tenant-id
  * - x-role (ADMIN|OPERATOR|VIEWER)
  */
-export function getRequestContext(): RequestContext {
-  const h = headers();
+export async function getRequestContext(): Promise<RequestContext> {
+  const h = await headers();
   const userId = h.get("x-user-id") ?? "dev-user";
   const tenantId = h.get("x-tenant-id") ?? "dev-tenant";
   const role = (h.get("x-role") as RequestContext["role"] | null) ?? "ADMIN";
