@@ -24,22 +24,24 @@ export function HomeClient({ isSignedIn, userEmail, apps }: Props) {
   const [selectedDashboardId, setSelectedDashboardId] = useState("");
 
   return (
-    <main style={{ padding: 24, fontFamily: "sans-serif", maxWidth: 1050, margin: "0 auto" }}>
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h1>Software2.0-now</h1>
+    <main className="page">
+      <header className="topbar">
+        <div>
+          <h1 style={{ margin: 0 }}>Software2.0-now</h1>
+          <p className="subtle" style={{ margin: "6px 0 0" }}>
+            Common platforms, version tracking, and customizable dashboards.
+          </p>
+        </div>
         <div>
           {isSignedIn ? (
-            <span>Signed in as {userEmail}</span>
+            <span className="subtle">Signed in as {userEmail}</span>
           ) : (
-            <Link href="/login">Sign in</Link>
+            <Link className="btn btn-primary" href="/login" style={{ textDecoration: "none" }}>
+              Sign in
+            </Link>
           )}
         </div>
       </header>
-
-      <p>
-        Browse common platforms, compare latest vs prior versions, and add apps to a custom tracking
-        dashboard.
-      </p>
 
       <DashboardManager
         isSignedIn={isSignedIn}
@@ -47,29 +49,31 @@ export function HomeClient({ isSignedIn, userEmail, apps }: Props) {
         onSelectDashboard={setSelectedDashboardId}
       />
 
-      <section style={{ border: "1px solid #ddd", borderRadius: 8, overflow: "hidden" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <section className="grid-table-wrap">
+        <table className="grid-table">
           <thead>
-            <tr style={{ background: "#f7f7f7", textAlign: "left" }}>
-              <th style={{ padding: 10 }}>Platform</th>
-              <th style={{ padding: 10 }}>Vendor</th>
-              <th style={{ padding: 10 }}>Latest</th>
-              <th style={{ padding: 10 }}>Previous</th>
-              <th style={{ padding: 10 }}>Security update</th>
-              <th style={{ padding: 10 }}>Track</th>
+            <tr>
+              <th>Platform</th>
+              <th>Vendor</th>
+              <th>Latest Version</th>
+              <th>Older Version</th>
+              <th>Update Type</th>
+              <th>Track</th>
             </tr>
           </thead>
           <tbody>
             {apps.map((app) => (
-              <tr key={app.id} style={{ borderTop: "1px solid #eee" }}>
-                <td style={{ padding: 10 }}>{app.name}</td>
-                <td style={{ padding: 10 }}>{app.vendor ?? "-"}</td>
-                <td style={{ padding: 10 }}>{app.latestVersion ?? "-"}</td>
-                <td style={{ padding: 10 }}>{app.previousVersion ?? "-"}</td>
-                <td style={{ padding: 10 }}>
-                  {app.isSecurityUpdate ? "Yes (security)" : "No / standard"}
+              <tr key={app.id}>
+                <td>{app.name}</td>
+                <td className="grid-muted">{app.vendor ?? "-"}</td>
+                <td>{app.latestVersion ?? "-"}</td>
+                <td className="grid-muted">{app.previousVersion ?? "-"}</td>
+                <td>
+                  <span className={`badge ${app.isSecurityUpdate ? "badge-secure" : ""}`}>
+                    {app.isSecurityUpdate ? "Security" : "Standard"}
+                  </span>
                 </td>
-                <td style={{ padding: 10 }}>
+                <td>
                   <AddToDashboardButton
                     applicationId={app.id}
                     isSignedIn={isSignedIn}

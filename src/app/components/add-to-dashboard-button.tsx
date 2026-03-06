@@ -18,7 +18,7 @@ export function AddToDashboardButton({ applicationId, isSignedIn, selectedDashbo
     }
 
     if (!selectedDashboardId) {
-      setStatus("Create/select a dashboard first");
+      setStatus("Select dashboard first");
       return;
     }
 
@@ -34,8 +34,10 @@ export function AddToDashboardButton({ applicationId, isSignedIn, selectedDashbo
 
   return (
     <div>
-      <button type="button" onClick={onAdd}>Add to dashboard</button>
-      {status ? <div style={{ fontSize: 12 }}>{status}</div> : null}
+      <button className="btn" type="button" onClick={onAdd}>
+        Add
+      </button>
+      {status ? <div className="small grid-muted" style={{ marginTop: 4 }}>{status}</div> : null}
     </div>
   );
 }

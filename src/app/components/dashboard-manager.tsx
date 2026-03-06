@@ -58,30 +58,39 @@ export function DashboardManager({ isSignedIn, selectedDashboardId, onSelectDash
   }
 
   if (!isSignedIn) {
-    return <p>Sign in to create dashboards and save tracked apps.</p>;
+    return (
+      <section className="card">
+        <strong>Want to save tracking lists?</strong>
+        <p className="subtle" style={{ marginTop: 6 }}>
+          Sign in to create dashboards and save apps for continuous monitoring.
+        </p>
+      </section>
+    );
   }
 
   return (
-    <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, marginBottom: 16 }}>
-      <h3>Create dashboard</h3>
+    <section className="card">
+      <h3 style={{ marginTop: 0 }}>Create Dashboard</h3>
       <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
         <input
+          className="input"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Enterprise Baseline"
           style={{ flex: 1 }}
         />
-        <button type="button" onClick={createDashboard}>
+        <button className="btn btn-primary" type="button" onClick={createDashboard}>
           Create
         </button>
       </div>
 
-      <label>
-        Active dashboard:{" "}
+      <label className="subtle small">Active dashboard</label>
+      <div style={{ marginTop: 6 }}>
         <select
+          className="select"
           value={selectedDashboardId}
           onChange={(e) => onSelectDashboard(e.target.value)}
-          style={{ minWidth: 220 }}
+          style={{ minWidth: 280 }}
         >
           <option value="">Select dashboard...</option>
           {dashboards.map((d) => (
@@ -90,9 +99,9 @@ export function DashboardManager({ isSignedIn, selectedDashboardId, onSelectDash
             </option>
           ))}
         </select>
-      </label>
+      </div>
 
-      {status ? <p style={{ marginTop: 8 }}>{status}</p> : null}
+      {status ? <p className="subtle" style={{ marginTop: 8 }}>{status}</p> : null}
     </section>
   );
 }

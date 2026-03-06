@@ -1,3 +1,5 @@
+import "./globals.css";
+
 export const metadata = {
   title: "Software2.0-now",
   description: "Enterprise software update dashboard",
