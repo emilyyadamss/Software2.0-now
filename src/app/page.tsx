@@ -1,28 +1,44 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { LogoutButton } from "./components/logout-button";
+import { prisma } from "@/lib/prisma";
+import { HomeClient } from "./components/home-client";
 
 export default async function HomePage() {
   const session = await auth();
 
-  if (!session?.user) {
-    redirect("/login");
-  }
+  const commonApps = await prisma.application.findMany({
+    where: {
+      isActive: true,
+      name: {
+        in: ["Google Chrome", "Mozilla Firefox", "Visual Studio Code", "7-Zip", "Zoom"],
+      },
+    },
+    orderBy: { name: "asc" },
+    include: {
+      versions: {
+        orderBy: { releasedAt: "desc" },
+        take: 2,
+      },
+      updateEvents: {
+        orderBy: { detectedAt: "desc" },
+        take: 1,
+      },
+    },
+  });
+
+  const apps = commonApps.map((app) => ({
+    id: app.id,
+    name: app.name,
+    vendor: app.vendor,
+    latestVersion: app.versions[0]?.version ?? null,
+    previousVersion: app.versions[1]?.version ?? null,
+    isSecurityUpdate: ["HIGH", "CRITICAL"].includes(app.updateEvents[0]?.severity ?? "LOW"),
+  }));
 
   return (
-    <main style={{ padding: 24, fontFamily: "sans-serif", maxWidth: 900, margin: "0 auto" }}>
-      <h1>Software2.0-now ✅</h1>
-      <p>
-        Signed in as <strong>{session.user.email}</strong> (role: {session.user.role})
-      </p>
-      <p>Tenant ID: {session.user.tenantId}</p>
-      <p>
-        <Link href="/api/apps">/api/apps</Link> · <Link href="/api/me">/api/me</Link> ·{" "}
-        <Link href="/api/tenant/current">/api/tenant/current</Link> ·{" "}
-        <Link href="/api/dashboard/summary">/api/dashboard/summary</Link>
-        <LogoutButton />
-      </p>
-    </main>
+    <HomeClient
+      isSignedIn={Boolean(session?.user)}
+      userEmail={session?.user?.email}
+      apps={apps}
+    />
   );
 }

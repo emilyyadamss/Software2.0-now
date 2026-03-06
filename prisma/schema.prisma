@@ -51,6 +51,7 @@ model Tenant {
   notifications Notification[]
   reminders     ReminderRule[]
   auditLogs     AuditLog[]
+  dashboards    Dashboard[]
 }
 
 model User {
@@ -62,6 +63,7 @@ model User {
 
   memberships TenantMembership[]
   auditLogs   AuditLog[]
+  dashboards  Dashboard[]
 }
 
 model TenantMembership {
@@ -89,9 +91,10 @@ model Application {
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
 
-  versions      ApplicationVersion[]
-  tenantApps    TenantApplication[]
-  updateEvents  UpdateEvent[]
+  versions       ApplicationVersion[]
+  tenantApps     TenantApplication[]
+  updateEvents   UpdateEvent[]
+  dashboardItems DashboardItem[]
 
   @@unique([name, vendor])
   @@index([name])
@@ -174,6 +177,35 @@ model PackageJob {
 
   @@index([tenantId, status, createdAt])
   @@index([applicationVersionId])
+}
+
+model Dashboard {
+  id          String          @id @default(cuid())
+  tenantId    String
+  userId      String
+  name        String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       DashboardItem[]
+
+  @@index([tenantId, userId])
+  @@unique([tenantId, userId, name])
+}
+
+model DashboardItem {
+  id            String       @id @default(cuid())
+  dashboardId   String
+  applicationId String
+  createdAt     DateTime     @default(now())
+
+  dashboard     Dashboard    @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  application   Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@unique([dashboardId, applicationId])
+  @@index([applicationId])
 }
 
 model ReminderRule {

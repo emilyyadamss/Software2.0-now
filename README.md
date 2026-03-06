@@ -15,9 +15,14 @@ npm run dev:bootstrap
 npm run dev
 ```
 
-Then open `http://localhost:3000/login` and sign in with:
-- email: value of `DEV_USER_EMAIL` in `.env`
-- tenant slug: value of `DEV_TENANT_SLUG` in `.env`
+Then open `http://localhost:3000`.
+
+Current flow:
+- Public homepage is available without login and shows common software + versions.
+- Login is optional, but required to create/save dashboards.
+- Use `/login` and sign in with:
+  - email: value of `DEV_USER_EMAIL` in `.env`
+  - tenant slug: value of `DEV_TENANT_SLUG` in `.env`
 
 ### Supabase troubleshooting
 - If you see `P1000` / `Authentication failed`, your DB username/password is incorrect.
