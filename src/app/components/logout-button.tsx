@@ -1,15 +1,16 @@
-"use client";
-
-import { signOut } from "next-auth/react";
+import { signOut } from "@/auth";
 
 export function LogoutButton() {
+  async function logoutAction() {
+    "use server";
+    await signOut({ redirectTo: "/login" });
+  }
+
   return (
-    <button
-      onClick={() => signOut({ callbackUrl: "/login" })}
-      style={{ marginLeft: 8 }}
-      type="button"
-    >
-      Sign out
-    </button>
+    <form action={logoutAction} style={{ display: "inline" }}>
+      <button style={{ marginLeft: 8 }} type="submit">
+        Sign out
+      </button>
+    </form>
   );
 }
