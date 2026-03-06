@@ -3,7 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { getRequestContext } from "@/lib/request-context";
 
 export async function GET() {
-  const { tenantId } = await getRequestContext();
+  let tenantId: string;
+  try {
+    ({ tenantId } = await getRequestContext());
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const [enabledApps, failedJobs, recentCriticalUpdates] = await Promise.all([
     prisma.tenantApplication.count({

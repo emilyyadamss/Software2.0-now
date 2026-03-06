@@ -1,4 +1,4 @@
-import { headers } from "next/headers";
+import { auth } from "@/auth";
 
 export type RequestContext = {
   userId: string;
@@ -6,18 +6,16 @@ export type RequestContext = {
   role: "ADMIN" | "OPERATOR" | "VIEWER";
 };
 
-/**
- * TODO: Replace this with NextAuth/session-derived tenant context.
- * For now, this allows local testing with headers:
- * - x-user-id
- * - x-tenant-id
- * - x-role (ADMIN|OPERATOR|VIEWER)
- */
 export async function getRequestContext(): Promise<RequestContext> {
-  const h = await headers();
-  const userId = h.get("x-user-id") ?? "dev-user";
-  const tenantId = h.get("x-tenant-id") ?? "dev-tenant";
-  const role = (h.get("x-role") as RequestContext["role"] | null) ?? "ADMIN";
+  const session = await auth();
 
-  return { userId, tenantId, role };
+  if (!session?.user?.id || !session.user.tenantId || !session.user.role) {
+    throw new Error("UNAUTHORIZED");
+  }
+
+  return {
+    userId: session.user.id,
+    tenantId: session.user.tenantId,
+    role: session.user.role,
+  };
 }

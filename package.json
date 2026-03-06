@@ -9,11 +9,13 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts",
-    "db:check": "node scripts/check-db-env.mjs"
+    "db:check": "node scripts/check-db-env.mjs",
+    "dev:bootstrap": "tsx scripts/bootstrap-dev.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
     "next": "^15.2.0",
+    "next-auth": "^5.0.0-beta.25",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

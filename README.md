@@ -6,12 +6,18 @@ This application aims to allow users to see new updates for services and softwar
 ```bash
 npm install
 cp .env.example .env
-# set DATABASE_URL and DIRECT_URL in .env
+# set DATABASE_URL, DIRECT_URL, AUTH_SECRET in .env
 npm run db:check
 npm run prisma:generate
 npx prisma db push
 npm run prisma:seed
+npm run dev:bootstrap
+npm run dev
 ```
+
+Then open `http://localhost:3000/login` and sign in with:
+- email: value of `DEV_USER_EMAIL` in `.env`
+- tenant slug: value of `DEV_TENANT_SLUG` in `.env`
 
 ### Supabase troubleshooting
 - If you see `P1000` / `Authentication failed`, your DB username/password is incorrect.

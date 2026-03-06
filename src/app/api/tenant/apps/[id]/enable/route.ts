@@ -5,13 +5,20 @@ import { requireRole } from "@/lib/rbac";
 
 export async function POST(
   _request: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { tenantId, role } = await getRequestContext();
+  let tenantId: string;
+  let role: "ADMIN" | "OPERATOR" | "VIEWER";
+  try {
+    ({ tenantId, role } = await getRequestContext());
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const forbidden = requireRole(role, ["ADMIN", "OPERATOR"]);
   if (forbidden) return forbidden;
 
-  const appId = params.id;
+  const { id: appId } = await context.params;
 
   const record = await prisma.tenantApplication.upsert({
     where: {
