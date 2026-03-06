@@ -6,11 +6,17 @@ This application aims to allow users to see new updates for services and softwar
 ```bash
 npm install
 cp .env.example .env
-# set DATABASE_URL in .env
+# set DATABASE_URL and DIRECT_URL in .env
+npm run db:check
 npm run prisma:generate
-npx prisma migrate dev --name init_mvp
+npx prisma db push
 npm run prisma:seed
 ```
+
+### Supabase troubleshooting
+- If you see `P1000` / `Authentication failed`, your DB username/password is incorrect.
+- For pooled Supabase URLs, username should look like `postgres.<PROJECT_REF>`.
+- Keep `sslmode=require` on both URLs.
 
 This repository now includes:
 - `prisma/schema.prisma` — multi-tenant MVP data model
