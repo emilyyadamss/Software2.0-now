@@ -6,10 +6,10 @@
   --card: #ffffff;
   --border: #d8dee8;
 
-  --grid-bg: #0f1220;
-  --grid-header: #171a2b;
-  --grid-row: #121528;
-  --grid-row-alt: #0f1324;
+  --grid-bg: #14161e;
+  --grid-header: #5b6185;
+  --grid-row: #8c8d8f;
+  --grid-row-alt: #6d6e71;
   --grid-border: #252b45;
   --grid-text: #d7def2;
   --grid-muted: #8f9bbd;
@@ -71,7 +71,7 @@ a {
 }
 
 .btn:hover {
-  background: #f8fafc;
+  background: #dbdee0;
 }
 
 .btn-primary {
