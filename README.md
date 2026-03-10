@@ -31,14 +31,14 @@ Current flow:
 
 This repository now includes:
 - `prisma/schema.prisma` — multi-tenant MVP data model
-- `prisma/seed.ts` — starter app catalog seed data (10 common apps)
+- `prisma/seed.ts` — starter Windows + macOS catalog data
 - `package.json` scripts for Next.js + Prisma
-- `src/app/api/...` tenant-aware API scaffolding for:
+- `src/app/api/...` scaffolding for:
   - `GET /api/apps`
-  - `GET /api/tenant/apps`
-  - `POST /api/tenant/apps/:id/enable`
-  - `POST /api/tenant/apps/:id/disable`
-  - `GET /api/dashboard/summary`
+  - `GET /api/catalog/latest-updates?os=all|windows|macos&page=1`
+  - `GET /api/catalog/packages?os=windows&q=chrome`
+  - `GET /api/catalog/packages/:packageId`
+  - `GET /api/dashboards`
 
 
 0) Target MVP (what “done” means)

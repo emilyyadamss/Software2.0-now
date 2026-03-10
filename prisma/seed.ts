@@ -1,9 +1,24 @@
-import { PrismaClient, InstallerType, Severity } from "@prisma/client";
+import { PrismaClient, InstallerType, OsFamily, Severity } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+type SeedApp = {
+  name: string;
+  vendor: string;
+  category: string;
+  homepage: string;
+  detailsUrl?: string;
+  installerType: InstallerType;
+  detectionRule: Record<string, string>;
+  version: string;
+  sourceUrl: string;
+  osFamily: OsFamily;
+  source: string;
+  sourcePackageId: string;
+};
+
 async function main() {
-  const apps = [
+  const apps: SeedApp[] = [
     {
       name: "Google Chrome",
       vendor: "Google",
@@ -13,6 +28,9 @@ async function main() {
       detectionRule: { type: "registry", key: "HKLM\\Software\\Google\\Chrome" },
       version: "122.0.0.0",
       sourceUrl: "https://dl.google.com/chrome/install/latest/chrome_installer.exe",
+      osFamily: OsFamily.WINDOWS,
+      source: "winget",
+      sourcePackageId: "Google.Chrome",
     },
     {
       name: "Mozilla Firefox",
@@ -23,36 +41,9 @@ async function main() {
       detectionRule: { type: "registry", key: "HKLM\\Software\\Mozilla\\Mozilla Firefox" },
       version: "124.0",
       sourceUrl: "https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US",
-    },
-    {
-      name: "7-Zip",
-      vendor: "7-Zip",
-      category: "Utility",
-      homepage: "https://www.7-zip.org/",
-      installerType: InstallerType.EXE,
-      detectionRule: { type: "file", path: "C:\\Program Files\\7-Zip\\7zFM.exe" },
-      version: "24.09",
-      sourceUrl: "https://www.7-zip.org/a/7z2409-x64.exe",
-    },
-    {
-      name: "Notepad++",
-      vendor: "Notepad++",
-      category: "Developer Tools",
-      homepage: "https://notepad-plus-plus.org/",
-      installerType: InstallerType.EXE,
-      detectionRule: { type: "file", path: "C:\\Program Files\\Notepad++\\notepad++.exe" },
-      version: "8.6.0",
-      sourceUrl: "https://github.com/notepad-plus-plus/notepad-plus-plus/releases",
-    },
-    {
-      name: "Visual Studio Code",
-      vendor: "Microsoft",
-      category: "Developer Tools",
-      homepage: "https://code.visualstudio.com/",
-      installerType: InstallerType.EXE,
-      detectionRule: { type: "file", path: "C:\\Program Files\\Microsoft VS Code\\Code.exe" },
-      version: "1.97.0",
-      sourceUrl: "https://update.code.visualstudio.com/latest/win32-x64-user/stable",
+      osFamily: OsFamily.WINDOWS,
+      source: "winget",
+      sourcePackageId: "Mozilla.Firefox",
     },
     {
       name: "Zoom",
@@ -63,6 +54,9 @@ async function main() {
       detectionRule: { type: "registry", key: "HKLM\\Software\\ZoomUMX" },
       version: "6.0.0",
       sourceUrl: "https://zoom.us/client/latest/ZoomInstallerFull.msi",
+      osFamily: OsFamily.WINDOWS,
+      source: "winget",
+      sourcePackageId: "Zoom.Zoom",
     },
     {
       name: "Slack",
@@ -73,53 +67,63 @@ async function main() {
       detectionRule: { type: "file", path: "C:\\Users\\%USERNAME%\\AppData\\Local\\slack\\slack.exe" },
       version: "4.38.121",
       sourceUrl: "https://slack.com/ssb/download-win64",
+      osFamily: OsFamily.WINDOWS,
+      source: "winget",
+      sourcePackageId: "SlackTechnologies.Slack",
     },
     {
-      name: "Microsoft Teams",
+      name: "Google Chrome",
+      vendor: "Google",
+      category: "Browser",
+      homepage: "https://www.google.com/chrome/",
+      installerType: InstallerType.ZIP,
+      detectionRule: { type: "bundle", id: "com.google.Chrome" },
+      version: "122.0.6261.112",
+      sourceUrl: "https://formulae.brew.sh/cask/google-chrome",
+      osFamily: OsFamily.MACOS,
+      source: "homebrew-cask",
+      sourcePackageId: "google-chrome",
+    },
+    {
+      name: "Visual Studio Code",
       vendor: "Microsoft",
-      category: "Collaboration",
-      homepage: "https://www.microsoft.com/en-us/microsoft-teams/download-app",
-      installerType: InstallerType.MSIX,
-      detectionRule: { type: "package", id: "MSTeams" },
-      version: "24215.1007.3090.1590",
-      sourceUrl: "https://www.microsoft.com/en-us/microsoft-teams/download-app",
-    },
-    {
-      name: "Adobe Acrobat Reader",
-      vendor: "Adobe",
-      category: "Productivity",
-      homepage: "https://get.adobe.com/reader/",
-      installerType: InstallerType.EXE,
-      detectionRule: { type: "file", path: "C:\\Program Files\\Adobe\\Acrobat Reader\\Reader\\AcroRd32.exe" },
-      version: "2025.001.0",
-      sourceUrl: "https://get.adobe.com/reader/enterprise/",
-    },
-    {
-      name: "VLC media player",
-      vendor: "VideoLAN",
-      category: "Media",
-      homepage: "https://www.videolan.org/vlc/",
-      installerType: InstallerType.EXE,
-      detectionRule: { type: "file", path: "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe" },
-      version: "3.0.21",
-      sourceUrl: "https://get.videolan.org/vlc/",
+      category: "Developer Tools",
+      homepage: "https://code.visualstudio.com/",
+      installerType: InstallerType.ZIP,
+      detectionRule: { type: "bundle", id: "com.microsoft.VSCode" },
+      version: "1.97.0",
+      sourceUrl: "https://formulae.brew.sh/cask/visual-studio-code",
+      osFamily: OsFamily.MACOS,
+      source: "homebrew-cask",
+      sourcePackageId: "visual-studio-code",
     },
   ];
 
   for (const app of apps) {
     const application = await prisma.application.upsert({
-      where: { name_vendor: { name: app.name, vendor: app.vendor } },
+      where: { source_sourcePackageId: { source: app.source, sourcePackageId: app.sourcePackageId } },
       create: {
         name: app.name,
         vendor: app.vendor,
         category: app.category,
         homepage: app.homepage,
+        detailsUrl: app.detailsUrl ?? app.homepage,
+        osFamily: app.osFamily,
+        source: app.source,
+        sourcePackageId: app.sourcePackageId,
+        canonicalSlug: `${app.osFamily.toLowerCase()}-${app.sourcePackageId.toLowerCase()}`,
+        latestRefreshedAt: new Date(),
         installerType: app.installerType,
         detectionRule: app.detectionRule,
       },
       update: {
         category: app.category,
         homepage: app.homepage,
+        detailsUrl: app.detailsUrl ?? app.homepage,
+        osFamily: app.osFamily,
+        source: app.source,
+        sourcePackageId: app.sourcePackageId,
+        latestRefreshedAt: new Date(),
         installerType: app.installerType,
         detectionRule: app.detectionRule,
         isActive: true,
@@ -136,9 +140,11 @@ async function main() {
       create: {
         applicationId: application.id,
         version: app.version,
+        versionSortKey: app.version,
         sourceUrl: app.sourceUrl,
       },
       update: {
+        versionSortKey: app.version,
         sourceUrl: app.sourceUrl,
       },
     });
@@ -148,12 +154,12 @@ async function main() {
         applicationId: application.id,
         newVersion: app.version,
         severity: Severity.MEDIUM,
-        notes: "Seeded initial baseline version",
+        notes: "Seeded baseline catalog version",
       },
     });
   }
 
-  console.log(`Seeded ${apps.length} applications`);
+  console.log(`Seeded ${apps.length} source-specific applications`);
 }
 
 main()
