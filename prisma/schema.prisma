@@ -6,13 +6,15 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
-  schemas = ["public", "auth"]
+  schemas   = ["public", "auth"]
 }
 
 enum TenantRole {
   ADMIN
   OPERATOR
   VIEWER
+
+  @@schema("public")
 }
 
 enum JobStatus {
@@ -21,6 +23,8 @@ enum JobStatus {
   SUCCESS
   FAILED
   CANCELED
+
+  @@schema("public")
 }
 
 enum Severity {
@@ -28,6 +32,8 @@ enum Severity {
   MEDIUM
   HIGH
   CRITICAL
+
+  @@schema("public")
 }
 
 enum InstallerType {
@@ -36,11 +42,15 @@ enum InstallerType {
   MSIX
   ZIP
   SCRIPT
+
+  @@schema("public")
 }
 
 enum OsFamily {
   WINDOWS
   MACOS
+
+  @@schema("public")
 }
 
 model Tenant {
@@ -58,6 +68,8 @@ model Tenant {
   reminders     ReminderRule[]
   auditLogs     AuditLog[]
   dashboards    Dashboard[]
+
+  @@schema("public")
 }
 
 model User {
@@ -70,6 +82,8 @@ model User {
   memberships TenantMembership[]
   auditLogs   AuditLog[]
   dashboards  Dashboard[]
+
+  @@schema("public")
 }
 
 model TenantMembership {
@@ -83,6 +97,8 @@ model TenantMembership {
 
   @@id([tenantId, userId])
   @@index([userId])
+
+  @@schema("public")
 }
 
 model Application {
@@ -111,6 +127,8 @@ model Application {
   @@unique([source, sourcePackageId])
   @@index([osFamily, name])
   @@index([name])
+
+  @@schema("public")
 }
 
 model ApplicationVersion {
@@ -131,6 +149,8 @@ model ApplicationVersion {
   @@unique([applicationId, version])
   @@index([applicationId, releasedAt])
   @@index([discoveredAt])
+
+  @@schema("public")
 }
 
 model TenantApplication {
@@ -147,6 +167,8 @@ model TenantApplication {
 
   @@id([tenantId, applicationId])
   @@index([applicationId])
+
+  @@schema("public")
 }
 
 model Asset {
@@ -160,6 +182,8 @@ model Asset {
   applicationVersion   ApplicationVersion  @relation(fields: [applicationVersionId], references: [id], onDelete: Cascade)
 
   @@index([applicationVersionId])
+
+  @@schema("public")
 }
 
 model UpdateEvent {
@@ -175,6 +199,8 @@ model UpdateEvent {
 
   @@index([applicationId, detectedAt])
   @@index([severity])
+
+  @@schema("public")
 }
 
 model PackageJob {
@@ -193,6 +219,8 @@ model PackageJob {
 
   @@index([tenantId, status, createdAt])
   @@index([applicationVersionId])
+
+  @@schema("public")
 }
 
 model Dashboard {
@@ -209,6 +237,8 @@ model Dashboard {
 
   @@index([tenantId, userId])
   @@unique([tenantId, userId, name])
+
+  @@schema("public")
 }
 
 model DashboardItem {
@@ -227,6 +257,8 @@ model DashboardItem {
 
   @@unique([dashboardId, applicationId])
   @@index([applicationId])
+
+  @@schema("public")
 }
 
 model ReminderRule {
@@ -243,6 +275,8 @@ model ReminderRule {
   tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, isEnabled])
+
+  @@schema("public")
 }
 
 model Notification {
@@ -258,6 +292,8 @@ model Notification {
   tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, createdAt])
+
+  @@schema("public")
 }
 
 model AuditLog {
@@ -275,4 +311,6 @@ model AuditLog {
 
   @@index([tenantId, createdAt])
   @@index([userId, createdAt])
+
+  @@schema("public")
 }
